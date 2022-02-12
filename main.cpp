@@ -1,93 +1,133 @@
-//
-//  main.cpp
-//  Perdle
-//
-//  Created by Lexie Finkelstein on 2/8/22.
-//  Copyright © 2022 Lexie Finkelstein. All rights reserved.
-//
-
 #include <fstream>
 #include <iostream>
+#include <map>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string>
+#include <unordered_map>
 #include <vector>
-#include "newgame.h"
+#include "defaultbank.h"
 using namespace std;
 
-int main(int argc, const char * argv[]) {
-    cout << "Perdle\n Where the P stands for project birthed from procrastination of my homework\n\nby akfink\n";
-    //create an instance of game player
-    newgame game;
-    
-    //check if user inputted a file name for custom wordbank
-    
-    //no file name inputted - set default work bank
-    if (argc == 1){
-        game.set_custom_wordbank(false);
-        game.set_default_bank();
-    }
-    else if (argc == 2){
-        game.set_custom_wordbank(true);
-        game.set_custom_file_name(argv[0]);
-    }
-    else {
-        cout << "Invalid argument. Program Exiting\n";
-        exit(1);
-    }
-    
-    cout << "Enter a number 1-100: \n";
-    cin >> game.seed;
-    game.magical_word_picker();
-    game.make_magic_map();
-    
-    bool enter_mode = true;
-    cout << "Magic word generated!\n"
-     << " Select a mode by typing a number: \n";
-    
-    while (enter_mode == true){
-        cout << "(1) Classic - 6 guesses \n"
-        << "(2) Unlimited Guesses \n"
-        << "(3) Custom \n";
-        cin >> game.mode;
+//Class to store newgame data
+
+class newgame{
+    //private variables
+    bool custom_wordbank;
+    string custom_file_name;
+    string magic_word;
+    vector<string> wordbank;
+     int magicindex;
+
+    //private functions
+    vector<string> open_and_store(string name){
+        vector<string> file_content;
+        string word;
+        ifstream readfile(name);
         
-        if (game.mode == 1){
-            game.MAX_guesses = 6;
-            enter_mode = false;
+        while (getline(readfile, word)) {
+            file_content.push_back(word);
         }
-        else if (game.mode == 2){
-            game.unlimited = true;
-            enter_mode = false;
-        }
-        else if (game.mode == 3){
-            cout << "Enter custom number of maximum guesses: \n";
-            cin >> game.MAX_guesses;
-            enter_mode = false;
-        }
-        else {
-            cout << "Invalid mode. Please choose a mode 1-3: \n";
-        }
+        return file_content;
     }
+    
+    vector<string> previous_guess;
+    vector<string> guess_state;
+    int BANK_SIZE = 0;
 
-    game.create_map();
-
-    cout << " _ _ _ _ _ _ \n";
-    while (game.continue_play){
-        cin >> game.guess;
-        if(game.word_map.find(game.guess) == game.word_map.end()){
-            cout << "Not found in word list!\n";
-        }
-        else if(game.guess.length() != 5){
-            cout << "Don't include spaces in guess//5 letter guess max\n";
+    
+ public:
+    int num_guesses = 0;
+    bool correct = false;
+    int seed;
+    string guess;
+    int MAX_guesses = 0;
+    bool unlimited = false;
+    int mode = 0;
+    bool continue_play = true;
+    unordered_map<string, char> word_map;
+    unordered_map<char, int> magic_map;
+    
+    void set_custom_wordbank(bool input){
+        if (input == true){
+            custom_wordbank = true;
         }
         else{
-            game.check();
-            cout << game.process_guess() << endl;
-            ++game.num_guesses;
-            if (game.num_guesses == game.MAX_guesses){
-                game.continue_play = false;
-            }
+            custom_wordbank = false;
         }
     }
-    cout << "Your word was " << game.get_magic() << ". \n";
-    cout << "Better Luck Next Time!" << endl;
-    return 0;
-}
+    
+    void set_custom_file_name(string name){
+        custom_file_name = name;
+        wordbank = open_and_store(name);
+        BANK_SIZE = static_cast<int>(wordbank.size());
+    }
+    void set_default_bank(){
+       wordbank = default_bank;
+        BANK_SIZE = 5757;
+    }
+
+    void add_to_map(string word){
+        pair<string, char> insert;
+        insert.first = word;
+        insert.second = '\0';
+        word_map.insert(insert);
+    }
+    
+    void create_map(){
+        for (int i = 0; i < BANK_SIZE; ++i){
+            add_to_map(wordbank[i]);
+        }
+    }
+    
+    void magical_word_picker(){
+        srand(seed);
+        magicindex = rand() % 5756;
+        magic_word = wordbank.at(magicindex);
+    }
+    
+    void make_magic_map(){
+        for (int i = 0; i < 5; ++i){
+            pair<char, int> letter;
+            letter.first = magic_word[i];
+            letter.second = i;
+            magic_map.insert(letter);
+        }
+    }
+    
+    string get_magic(){
+        return magic_word;
+    }
+    
+    string process_guess(){
+        cout << endl;
+        for (int i = 0; i < 5; ++i){
+            cout << guess[i] << " ";
+        }
+        cout << endl;
+        string results = "";
+        for (int i = 0; i < 5; ++i){
+            if (magic_map.find(guess[i]) == magic_map.end()){
+                results += "X ";
+            }
+            else {
+                if (magic_map.find(guess[i])->second == i){
+                    results += "V ";
+                }
+                else {
+                    results += "- ";
+                }
+            }
+        }
+        return results;
+    }
+    
+    void check(){
+        if (guess == magic_word){
+            cout << "VVVVV" << endl << "You Win!" << endl;
+            exit(0);
+        }
+    }
+    
+    
+};
