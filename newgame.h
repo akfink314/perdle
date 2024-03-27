@@ -13,18 +13,17 @@ using namespace std;
 
 class newgame{
     //private variables
-    bool custom_wordbank;
+    bool custom_wordbank = false;
     string custom_file_name;
-    string magic_word;
+    string magic_word = 'hello';
     vector<string> wordbank;
-     int magicindex;
+    int magicindex;
 
     //private functions
     vector<string> open_and_store(string name){
         vector<string> file_content;
         string word;
         ifstream readfile(name);
-        
         while (getline(readfile, word)) {
             file_content.push_back(word);
         }
@@ -34,12 +33,10 @@ class newgame{
     vector<string> previous_guess;
     vector<string> guess_state;
     int BANK_SIZE = 0;
-
-    
  public:
     int num_guesses = 0;
     bool correct = false;
-    int seed;
+    int seed = -1;
     string guess;
     int MAX_guesses = 0;
     bool unlimited = false;
@@ -100,17 +97,22 @@ class newgame{
     }
     
     string process_guess(){
+        cout << endl;
+        for (int i = 0; i < 5; ++i){
+            cout << guess[i] << " ";
+        }
+        cout << endl;
         string results = "";
         for (int i = 0; i < 5; ++i){
             if (magic_map.find(guess[i]) == magic_map.end()){
-                results += "X";
+                results += "X ";
             }
             else {
                 if (magic_map.find(guess[i])->second == i){
-                    results += "V";
+                    results += "V ";
                 }
                 else {
-                    results += "-";
+                    results += "- ";
                 }
             }
         }
@@ -123,6 +125,4 @@ class newgame{
             exit(0);
         }
     }
-    
-    
 };
