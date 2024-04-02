@@ -15,7 +15,7 @@ class newgame{
     //private variables
     bool custom_wordbank = false;
     string custom_file_name;
-    string magic_word = 'hello';
+    string magic_word = "hello";
     vector<string> wordbank;
     int magicindex;
 
@@ -92,7 +92,7 @@ class newgame{
         }
     }
     
-    string get_magic(){
+    string get_magic_word(){
         return magic_word;
     }
     
@@ -124,5 +124,6 @@ class newgame{
             cout << "VVVVV" << endl << "You Win!" << endl;
             exit(0);
         }
+        
     }
 };

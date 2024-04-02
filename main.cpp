@@ -13,6 +13,18 @@ using namespace std;
 int main() {
   newgame game;
   game.set_custom_wordbank(true);
-  cout << game.magic_word;
-  cout << "created new game";
+  string word = game.get_magic_word();
+  game.make_magic_map();
+  game.create_map();
+  string current_guess = "";
+  for(int i = 0; i < 5; i++){
+    // get input
+    cout << "enter 5 letter guess\n";
+    cin >> current_guess;
+    game.guess = current_guess;
+    game.process_guess();
+  }
+
+
+
 }
